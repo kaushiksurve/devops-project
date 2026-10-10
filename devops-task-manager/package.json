@@ -1,0 +1,18 @@
+{
+  "name": "devops-task-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple task manager with a Node.js backend and static frontend",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
