@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-build-smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devops-task-manager
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: devops-task-manager/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run automated tests
+        run: npm test
+
+      - name: Build Docker image
+        run: docker build --tag devops-task-manager:${{ github.sha }} .
+
+      - name: Deploy container and run smoke checks
+        shell: bash
+        run: |
+          container_name="task-manager-${GITHUB_RUN_ID}"
+          docker run --detach --name "$container_name" --publish 3000:3000 "devops-task-manager:${GITHUB_SHA}"
+          trap 'docker rm --force "$container_name" >/dev/null 2>&1 || true' EXIT
+
+          healthy=false
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:3000/api/health >/dev/null; then
+              healthy=true
+              break
+            fi
+            sleep 1
+          done
+          test "$healthy" = true
+          curl --fail --silent http://127.0.0.1:3000/ | grep --quiet "DevOps Task Manager"

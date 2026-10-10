@@ -1,25 +1,180 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="dark">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevOps Task Manager</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="A polished task manager dashboard built with Node.js and Docker.">
+    <title>DevOps Task Manager · Taskflow</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/script.js" defer></script>
   </head>
   <body>
-    <main class="app">
-      <header>
-        <h1>Task Manager</h1>
-      </header>
+    <div class="app-shell">
+      <aside id="sidebar" class="sidebar" aria-label="Main navigation">
+        <a class="brand" href="/" aria-label="Taskflow dashboard">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><path d="M8 16.5 13.2 22 24 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 2.5 28 9v14L16 29.5 4 23V9l12-6.5Z" stroke="currentColor" stroke-width="1.5" opacity=".55"/></svg>
+          </span>
+          <span>taskflow<span class="brand-period">.</span></span>
+        </a>
 
-      <form id="task-form" class="task-form">
-        <input id="task-input" type="text" placeholder="Add a task" aria-label="Add a task" />
-        <button type="submit">Add</button>
-      </form>
+        <p class="nav-label">WORKSPACE</p>
+        <nav class="primary-nav" aria-label="Task views">
+          <button class="nav-link is-active" type="button" data-view="dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-link" type="button" data-view="all">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+            <span>All tasks</span><span class="nav-count" id="all-count">0</span>
+          </button>
+          <button class="nav-link" type="button" data-view="pending">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>
+            <span>Pending</span><span class="nav-count" id="pending-count">0</span>
+          </button>
+          <button class="nav-link" type="button" data-view="completed">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8 12 2.5 2.5L16 9"/></svg>
+            <span>Completed</span>
+          </button>
+        </nav>
 
-      <ul id="task-list" class="task-list" aria-live="polite"></ul>
-    </main>
+        <div class="sidebar-bottom">
+          <div class="sidebar-tip">
+            <span class="tip-icon" aria-hidden="true">✦</span>
+            <p>Small steps add up.<br><strong>Keep your momentum.</strong></p>
+          </div>
+          <button class="nav-link settings-link" type="button" id="settings-open">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 1 1-2.4-2.4l.1-.1A1.7 1.7 0 0 0 4.2 12H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 1 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 1 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z" transform="translate(-1.4 1) scale(.96)"/></svg>
+            <span>Settings</span>
+          </button>
+          <div class="profile">
+            <span class="avatar" aria-hidden="true">TF</span>
+            <span class="profile-copy"><strong>My workspace</strong><small>Personal plan</small></span>
+            <span class="profile-dots" aria-hidden="true">···</span>
+          </div>
+        </div>
+      </aside>
 
-    <script src="script.js"></script>
+      <div class="mobile-scrim" id="mobile-scrim" hidden></div>
+      <main class="main-content">
+        <header class="topbar">
+          <button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+          <div class="breadcrumbs"><span>Workspace</span><span class="breadcrumb-slash">/</span><strong id="breadcrumb-current">Dashboard</strong></div>
+          <div class="topbar-actions">
+            <span class="today-chip"><span class="online-dot" aria-hidden="true"></span> <span id="service-status">Connecting</span></span>
+            <button class="icon-button refresh-button" id="refresh-button" type="button" aria-label="Refresh tasks" title="Refresh tasks">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18 6.2L20 12M4 12l2 5.8A7 7 0 0 0 18.4 15"/></svg>
+            </button>
+            <span class="top-avatar" aria-label="Taskflow workspace">T</span>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <section class="welcome-row" aria-labelledby="welcome-title">
+            <div>
+              <p class="date-label" id="current-date"></p>
+              <h1 id="welcome-title">Good things take <span>focus.</span></h1>
+              <p class="welcome-copy">One task at a time. You’ve got this.</p>
+            </div>
+            <div class="welcome-decoration" aria-hidden="true">
+              <span class="sun-orbit orbit-one"></span><span class="sun-orbit orbit-two"></span>
+              <span class="sun-core">✦</span>
+            </div>
+          </section>
+
+          <section class="stats-grid" aria-label="Task summary">
+            <article class="stat-card stat-total">
+              <div class="stat-top"><span class="stat-icon icon-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></span><span class="stat-caption">ALL TIME</span></div>
+              <p class="stat-value" id="total-stat">0</p><p class="stat-label">Total tasks</p>
+            </article>
+            <article class="stat-card stat-pending">
+              <div class="stat-top"><span class="stat-icon icon-amber" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><span class="stat-caption">IN PROGRESS</span></div>
+              <p class="stat-value" id="pending-stat">0</p><p class="stat-label">Pending tasks</p>
+            </article>
+            <article class="stat-card stat-completed">
+              <div class="stat-top"><span class="stat-icon icon-green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8 12 2.5 2.5L16 9"/></svg></span><span class="stat-caption">NICE WORK</span></div>
+              <p class="stat-value" id="completed-stat">0</p><p class="stat-label">Completed</p>
+            </article>
+            <article class="stat-card stat-rate">
+              <div class="stat-top"><span class="stat-icon icon-violet" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17V7m5 10V4m5 13v-6m5 6V8"/></svg></span><span class="stat-caption">YOUR PROGRESS</span></div>
+              <p class="stat-value"><span id="rate-stat">0</span><span class="stat-percent">%</span></p>
+              <div class="progress-track" role="progressbar" aria-label="Task completion rate" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track"><span id="progress-bar"></span></div>
+            </article>
+          </section>
+
+          <section class="create-card" aria-labelledby="create-heading">
+            <div class="create-copy">
+              <span class="create-spark" aria-hidden="true">✦</span>
+              <div><h2 id="create-heading">Make it happen</h2><p>Capture your next little win.</p></div>
+            </div>
+            <form id="task-form" class="task-form">
+              <label class="visually-hidden" for="task-input">New task</label>
+              <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              <input id="task-input" name="title" type="text" maxlength="200" placeholder="What needs to get done?" autocomplete="off" required aria-describedby="form-hint">
+              <span class="enter-hint" id="form-hint">↵ Enter</span>
+              <button class="add-button" type="submit"><span>Add task</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+            </form>
+          </section>
+
+          <section class="tasks-section" aria-labelledby="tasks-heading">
+            <div class="section-heading">
+              <div><p class="section-kicker">YOUR SPACE</p><h2 id="tasks-heading">Your tasks <span id="visible-count" class="visible-count">0</span></h2></div>
+              <button class="text-button reset-button" id="reset-filters" type="button">Reset filters</button>
+            </div>
+            <div class="task-toolbar">
+              <div class="filter-tabs" role="group" aria-label="Filter tasks">
+                <button type="button" class="filter-tab is-selected" data-filter="all" aria-pressed="true">All</button>
+                <button type="button" class="filter-tab" data-filter="pending" aria-pressed="false">Pending</button>
+                <button type="button" class="filter-tab" data-filter="completed" aria-pressed="false">Completed</button>
+              </div>
+              <div class="task-tools">
+                <label class="search-box">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                  <span class="visually-hidden">Search tasks</span>
+                  <input id="search-input" type="search" placeholder="Search tasks..." autocomplete="off">
+                  <button id="clear-search" class="clear-search" type="button" aria-label="Clear search" title="Clear search" hidden>×</button>
+                </label>
+                <label class="sort-control"><span class="visually-hidden">Sort tasks</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10m-7 5h4"/></svg>
+                  <select id="sort-select" aria-label="Sort tasks">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="alphabetical">Alphabetical</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="task-list-shell">
+              <div id="loading-state" class="loading-state" role="status"><span class="spinner" aria-hidden="true"></span><span>Loading your tasks…</span></div>
+              <ul id="task-list" class="task-list" aria-label="Task list" aria-live="polite" aria-busy="true"></ul>
+              <div id="empty-state" class="empty-state" hidden>
+                <span class="empty-illustration" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none"><rect x="15" y="16" width="50" height="54" rx="10"/><path d="M27 33h26M27 43h17M27 53h12"/><circle cx="58" cy="19" r="10"/><path d="M58 14v10m-5-5h10"/></svg></span>
+                <h3 id="empty-title">A fresh page.</h3>
+                <p id="empty-copy">Add a task above and make today count.</p>
+                <button id="empty-action" class="text-button empty-action" type="button">Add your first task <span aria-hidden="true">→</span></button>
+              </div>
+            </div>
+          </section>
+
+          <footer class="page-footer">
+            <span class="footer-brand"><span class="footer-mark" aria-hidden="true">✓</span> DevOps Task Manager</span>
+            <span class="footer-divider" aria-hidden="true"></span>
+            <span>Built for focused work</span>
+            <span class="footer-stack">Node.js <i>·</i> Docker <i>·</i> GitHub Actions</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+      <form method="dialog" class="dialog-top"><div><p class="section-kicker">PREFERENCES</p><h2 id="settings-title">Settings</h2></div><button class="icon-button" aria-label="Close settings">×</button></form>
+      <div class="setting-row"><span><strong>Appearance</strong><small>Choose the look that feels right.</small></span><label class="theme-switch"><span class="visually-hidden">Use light theme</span><input id="theme-toggle" type="checkbox"><span class="switch-track"></span></label></div>
+      <p class="settings-note">Your tasks are managed by the app's backend. Theme preference applies to this browser session.</p>
+    </dialog>
+    <div id="toast-region" class="toast-region" aria-live="assertive" aria-atomic="true"></div>
   </body>
 </html>
