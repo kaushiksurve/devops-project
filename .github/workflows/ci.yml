@@ -56,10 +56,12 @@ jobs:
           PGPASSWORD: taskflow-ci-admin-password
           TASKFLOW_APP_PASSWORD: taskflow-ci-app-password
         run: |
-          node -e '
-            const { Pool } = require("pg");
-            (async () => {
-              const pool = new Pool();
+          node <<'NODE'
+          const { Pool } = require("pg");
+
+          (async () => {
+            const pool = new Pool();
+            try {
               const role = await pool.query(
                 "SELECT format('CREATE ROLE taskflow_app LOGIN PASSWORD %L', $1::text) AS statement",
                 [process.env.TASKFLOW_APP_PASSWORD]
@@ -67,12 +69,14 @@ jobs:
               await pool.query(role.rows[0].statement);
               await pool.query("GRANT CONNECT, CREATE ON DATABASE taskflow_test TO taskflow_app");
               await pool.query("GRANT USAGE, CREATE ON SCHEMA public TO taskflow_app");
+            } finally {
               await pool.end();
-            })().catch((error) => {
-              console.error(error);
-              process.exitCode = 1;
-            });
-          '
+            }
+          })().catch((error) => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE
 
       - name: Run automated tests
         run: npm test
