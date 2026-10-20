@@ -1,0 +1,37 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "devops-task-manager/**"
+      - ".github/workflows/docker-image.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "devops-task-manager/**"
+      - ".github/workflows/docker-image.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./devops-task-manager
+          file: ./devops-task-manager/Dockerfile
+          push: false
+          tags: task-manager:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
