@@ -61,8 +61,8 @@ jobs:
             (async () => {
               const pool = new Pool();
               const role = await pool.query(
-                "SELECT format($1, $2) AS statement",
-                ["CREATE ROLE taskflow_app LOGIN PASSWORD %L", process.env.TASKFLOW_APP_PASSWORD]
+                "SELECT format('CREATE ROLE taskflow_app LOGIN PASSWORD %L', $1::text) AS statement",
+                [process.env.TASKFLOW_APP_PASSWORD]
               );
               await pool.query(role.rows[0].statement);
               await pool.query("GRANT CONNECT, CREATE ON DATABASE taskflow_test TO taskflow_app");
