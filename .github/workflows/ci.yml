@@ -12,6 +12,27 @@ permissions:
 jobs:
   test-build-smoke:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: taskflow_test
+          POSTGRES_USER: taskflow_admin
+          POSTGRES_PASSWORD: taskflow-ci-admin-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U taskflow_admin -d taskflow_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGDATABASE: taskflow_test
+      PGUSER: taskflow_app
+      PGPASSWORD: taskflow-ci-app-password
+      SESSION_SECRET: ci-only-session-secret-long-enough-for-testing-123456
     defaults:
       run:
         working-directory: devops-task-manager
@@ -29,6 +50,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create restricted database role
+        env:
+          PGUSER: taskflow_admin
+          PGPASSWORD: taskflow-ci-admin-password
+          TASKFLOW_APP_PASSWORD: taskflow-ci-app-password
+        run: |
+          node -e '
+            const { Pool } = require("pg");
+            (async () => {
+              const pool = new Pool();
+              const role = await pool.query(
+                "SELECT format($1, $2) AS statement",
+                ["CREATE ROLE taskflow_app LOGIN PASSWORD %L", process.env.TASKFLOW_APP_PASSWORD]
+              );
+              await pool.query(role.rows[0].statement);
+              await pool.query("GRANT CONNECT, CREATE ON DATABASE taskflow_test TO taskflow_app");
+              await pool.query("GRANT USAGE, CREATE ON SCHEMA public TO taskflow_app");
+              await pool.end();
+            })().catch((error) => {
+              console.error(error);
+              process.exitCode = 1;
+            });
+          '
+
       - name: Run automated tests
         run: npm test
 
@@ -39,7 +84,15 @@ jobs:
         shell: bash
         run: |
           container_name="task-manager-${GITHUB_RUN_ID}"
-          docker run --detach --name "$container_name" --publish 3000:3000 "devops-task-manager:${GITHUB_SHA}"
+          docker run --detach --network host --name "$container_name" \
+            --env NODE_ENV=development \
+            --env PGHOST=127.0.0.1 \
+            --env PGPORT=5432 \
+            --env PGDATABASE=taskflow_test \
+            --env PGUSER=taskflow_app \
+            --env PGPASSWORD=taskflow-ci-app-password \
+            --env SESSION_SECRET="$SESSION_SECRET" \
+            "devops-task-manager:${GITHUB_SHA}"
           trap 'docker rm --force "$container_name" >/dev/null 2>&1 || true' EXIT
 
           healthy=false

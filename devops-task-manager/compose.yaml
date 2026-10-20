@@ -1,11 +1,44 @@
 services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: taskflow
+      POSTGRES_USER: taskflow_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskflow-local-only}
+      TASKFLOW_APP_PASSWORD: ${TASKFLOW_APP_PASSWORD:-taskflow-app-local-only}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/create-test-database.sql:/docker-entrypoint-initdb.d/10-create-test-database.sql:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskflow_admin -d taskflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   task-manager:
     build:
       context: .
+    env_file:
+      - path: .env.local
+        required: false
     ports:
       - "3000:3000"
     environment:
       PORT: "3000"
+      NODE_ENV: ${NODE_ENV:-development}
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+      PGHOST: database
+      PGPORT: "5432"
+      PGDATABASE: taskflow
+      PGUSER: taskflow_app
+      PGPASSWORD: ${TASKFLOW_APP_PASSWORD:-taskflow-app-local-only}
+      SESSION_SECRET: ${SESSION_SECRET:-local-only-replace-this-session-secret-before-deployment-32chars}
+    depends_on:
+      database:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test:
@@ -17,3 +50,6 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
+
+volumes:
+  postgres_data:

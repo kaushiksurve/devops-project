@@ -10,7 +10,70 @@
     <script src="/script.js" defer></script>
   </head>
   <body>
-    <div class="app-shell">
+    <main id="auth-screen" class="auth-screen">
+      <section class="auth-story">
+        <a class="brand auth-brand" href="/" aria-label="Taskflow home">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M8 16.5 13.2 22 24 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 2.5 28 9v14L16 29.5 4 23V9l12-6.5Z" stroke="currentColor" stroke-width="1.5" opacity=".55"/></svg></span>
+          <span>taskflow<span class="brand-period">.</span></span>
+        </a>
+        <div class="auth-story-copy">
+          <p class="auth-eyebrow"><span class="auth-eyebrow-dot"></span> YOUR SPACE TO GET THINGS DONE</p>
+          <h1>Make room for<br><span>what matters.</span></h1>
+          <p class="auth-intro">A little clarity goes a long way. Keep your tasks close, your focus closer.</p>
+          <div class="auth-benefits">
+            <p><span aria-hidden="true">✓</span> Your own private workspace</p>
+            <p><span aria-hidden="true">✓</span> Your tasks, saved securely</p>
+            <p><span aria-hidden="true">✓</span> Pick up right where you left off</p>
+          </div>
+        </div>
+        <p class="auth-story-footer">Thoughtful work starts with a clear mind.</p>
+        <span class="auth-orb auth-orb-one" aria-hidden="true"></span>
+        <span class="auth-orb auth-orb-two" aria-hidden="true"></span>
+      </section>
+
+      <section class="auth-panel" aria-labelledby="auth-title">
+        <div class="auth-card">
+          <div class="auth-mobile-brand">
+            <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M8 16.5 13.2 22 24 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 2.5 28 9v14L16 29.5 4 23V9l12-6.5Z" stroke="currentColor" stroke-width="1.5" opacity=".55"/></svg></span>
+            <span>taskflow<span class="brand-period">.</span></span>
+          </div>
+          <p class="section-kicker">WELCOME TO TASKFLOW</p>
+          <h2 id="auth-title">Welcome back</h2>
+          <p class="auth-card-copy" id="auth-description">Sign in to your personal workspace.</p>
+          <div class="auth-tabs" role="tablist" aria-label="Account access">
+            <button type="button" class="auth-tab is-active" id="login-tab" role="tab" aria-selected="true" aria-controls="login-form">Sign in</button>
+            <button type="button" class="auth-tab" id="register-tab" role="tab" aria-selected="false" aria-controls="register-form">Create account</button>
+          </div>
+          <a class="google-auth-link" href="/api/auth/google">
+            <span class="google-mark" aria-hidden="true">G</span>
+            <span>Continue with Google</span>
+          </a>
+          <div class="auth-divider" aria-hidden="true"><span>or use your email</span></div>
+          <form id="login-form" class="auth-form" novalidate>
+            <label for="login-email">Email address</label>
+            <input id="login-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com" required>
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="72" placeholder="Your password" required>
+            <button class="auth-submit" type="submit"><span>Sign in to your workspace</span><span aria-hidden="true">→</span></button>
+          </form>
+          <form id="register-form" class="auth-form" hidden novalidate>
+            <label for="register-name">Your name</label>
+            <input id="register-name" name="name" type="text" autocomplete="name" minlength="2" maxlength="60" placeholder="How should we call you?" required>
+            <label for="register-email">Email address</label>
+            <input id="register-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com" required>
+            <label for="register-password">Create a password</label>
+            <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="72" placeholder="At least 12 characters" required>
+            <p class="password-hint">Use 12 or more characters to keep your account secure.</p>
+            <button class="auth-submit" type="submit"><span>Create my account</span><span aria-hidden="true">→</span></button>
+          </form>
+          <p id="auth-message" class="auth-message" role="alert" aria-live="assertive"></p>
+          <p class="auth-privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>Your tasks are private to your account.</p>
+        </div>
+        <span class="auth-copyright">DevOps Task Manager · Built for focused work</span>
+      </section>
+    </main>
+
+    <div id="app-shell" class="app-shell" hidden>
       <aside id="sidebar" class="sidebar" aria-label="Main navigation">
         <a class="brand" href="/" aria-label="Taskflow dashboard">
           <span class="brand-mark" aria-hidden="true">
@@ -40,19 +103,15 @@
         </nav>
 
         <div class="sidebar-bottom">
-          <div class="sidebar-tip">
-            <span class="tip-icon" aria-hidden="true">✦</span>
-            <p>Small steps add up.<br><strong>Keep your momentum.</strong></p>
-          </div>
           <button class="nav-link settings-link" type="button" id="settings-open">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 1 1-2.4-2.4l.1-.1A1.7 1.7 0 0 0 4.2 12H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 1 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 1 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z" transform="translate(-1.4 1) scale(.96)"/></svg>
             <span>Settings</span>
           </button>
-          <div class="profile">
+          <button id="profile-open" class="profile" type="button" aria-label="Open your profile settings">
             <span class="avatar" aria-hidden="true">TF</span>
-            <span class="profile-copy"><strong>My workspace</strong><small>Personal plan</small></span>
+            <span class="profile-copy"><strong id="profile-name">My workspace</strong><small id="profile-email">Personal account</small></span>
             <span class="profile-dots" aria-hidden="true">···</span>
-          </div>
+          </button>
         </div>
       </aside>
 
@@ -64,11 +123,13 @@
           </button>
           <div class="breadcrumbs"><span>Workspace</span><span class="breadcrumb-slash">/</span><strong id="breadcrumb-current">Dashboard</strong></div>
           <div class="topbar-actions">
-            <span class="today-chip"><span class="online-dot" aria-hidden="true"></span> <span id="service-status">Connecting</span></span>
+            <button class="today-chip" id="service-status-button" type="button" title="Checking application and database status" aria-label="System status: connecting">
+              <span class="online-dot" aria-hidden="true"></span><span id="service-status">Connecting</span>
+            </button>
             <button class="icon-button refresh-button" id="refresh-button" type="button" aria-label="Refresh tasks" title="Refresh tasks">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18 6.2L20 12M4 12l2 5.8A7 7 0 0 0 18.4 15"/></svg>
             </button>
-            <span class="top-avatar" aria-label="Taskflow workspace">T</span>
+            <span class="top-avatar" id="top-avatar" aria-label="Signed-in user"></span>
           </div>
         </header>
 
@@ -76,8 +137,8 @@
           <section class="welcome-row" aria-labelledby="welcome-title">
             <div>
               <p class="date-label" id="current-date"></p>
-              <h1 id="welcome-title">Good things take <span>focus.</span></h1>
-              <p class="welcome-copy">One task at a time. You’ve got this.</p>
+              <h1 id="welcome-title">Welcome back, <span id="greeting-name">friend</span>.</h1>
+              <p class="welcome-copy">One focused step at a time.</p>
             </div>
             <div class="welcome-decoration" aria-hidden="true">
               <span class="sun-orbit orbit-one"></span><span class="sun-orbit orbit-two"></span>
@@ -108,13 +169,31 @@
           <section class="create-card" aria-labelledby="create-heading">
             <div class="create-copy">
               <span class="create-spark" aria-hidden="true">✦</span>
-              <div><h2 id="create-heading">Make it happen</h2><p>Capture your next little win.</p></div>
+              <div><h2 id="create-heading">Quick add</h2></div>
             </div>
             <form id="task-form" class="task-form">
               <label class="visually-hidden" for="task-input">New task</label>
               <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
               <input id="task-input" name="title" type="text" maxlength="200" placeholder="What needs to get done?" autocomplete="off" required aria-describedby="form-hint">
-              <span class="enter-hint" id="form-hint">↵ Enter</span>
+              <select id="task-priority" name="priority" aria-label="New task priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="blocker">Blocker</option>
+              </select>
+              <details class="tag-picker">
+                <summary aria-label="Choose environment and topic tags">+ Tags</summary>
+                <fieldset class="tag-picker-options">
+                  <legend>Environment and topic</legend>
+                  <label><input type="checkbox" name="tags" value="prod"> prod</label>
+                  <label><input type="checkbox" name="tags" value="staging"> staging</label>
+                  <label><input type="checkbox" name="tags" value="ci/cd"> ci/cd</label>
+                  <label><input type="checkbox" name="tags" value="infra"> infra</label>
+                  <label><input type="checkbox" name="tags" value="docker"> docker</label>
+                  <label><input type="checkbox" name="tags" value="db"> db</label>
+                </fieldset>
+              </details>
+              <span class="enter-hint" id="form-hint" aria-hidden="true">↵ Enter</span>
               <button class="add-button" type="submit"><span>Add task</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
             </form>
           </section>
@@ -122,7 +201,17 @@
           <section class="tasks-section" aria-labelledby="tasks-heading">
             <div class="section-heading">
               <div><p class="section-kicker">YOUR SPACE</p><h2 id="tasks-heading">Your tasks <span id="visible-count" class="visible-count">0</span></h2></div>
-              <button class="text-button reset-button" id="reset-filters" type="button">Reset filters</button>
+              <div class="section-utilities">
+                <label class="export-format">
+                  <span class="visually-hidden">Export format</span>
+                  <select id="export-format" aria-label="Export format">
+                    <option value="json">JSON</option>
+                    <option value="markdown">Markdown</option>
+                  </select>
+                </label>
+                <button class="utility-button" id="export-button" type="button" title="Export visible tasks">Export</button>
+                <button class="text-button reset-button" id="reset-filters" type="button">Reset filters</button>
+              </div>
             </div>
             <div class="task-toolbar">
               <div class="filter-tabs" role="group" aria-label="Filter tasks">
@@ -146,6 +235,11 @@
                   </select>
                 </label>
               </div>
+            </div>
+            <div class="metadata-filters" aria-label="Filter by priority or environment">
+              <div class="metadata-filter-group" id="priority-filters" role="group" aria-label="Filter by priority"></div>
+              <span class="filter-divider" aria-hidden="true"></span>
+              <div class="metadata-filter-group" id="tag-filters" role="group" aria-label="Filter by tag"></div>
             </div>
 
             <div class="task-list-shell">
@@ -172,8 +266,17 @@
 
     <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
       <form method="dialog" class="dialog-top"><div><p class="section-kicker">PREFERENCES</p><h2 id="settings-title">Settings</h2></div><button class="icon-button" aria-label="Close settings">×</button></form>
+      <form id="profile-form" class="profile-form">
+        <label for="profile-name-input">Your name</label>
+        <input id="profile-name-input" name="name" type="text" minlength="2" maxlength="60" required>
+        <label for="profile-email-input">Email address</label>
+        <input id="profile-email-input" name="email" type="email" readonly aria-describedby="email-help">
+        <small id="email-help">Email addresses cannot be changed from this demo.</small>
+        <button class="profile-save" type="submit">Save profile</button>
+      </form>
       <div class="setting-row"><span><strong>Appearance</strong><small>Choose the look that feels right.</small></span><label class="theme-switch"><span class="visually-hidden">Use light theme</span><input id="theme-toggle" type="checkbox"><span class="switch-track"></span></label></div>
-      <p class="settings-note">Your tasks are managed by the app's backend. Theme preference applies to this browser session.</p>
+      <p class="settings-note">Your account and tasks are saved securely in PostgreSQL. Theme preference applies to this browser session.</p>
+      <button class="signout-button" id="logout-button" type="button">Sign out of Taskflow</button>
     </dialog>
     <div id="toast-region" class="toast-region" aria-live="assertive" aria-atomic="true"></div>
   </body>

@@ -5,7 +5,7 @@
 - **Project title:** DevOps Task Manager
 - **Student name:** _Fill in_
 - **Course / semester:** _Fill in_
-- **GitHub repository:** https://github.com/kaushiksurve/devops-task-manager
+- **GitHub repository:** https://github.com/kaushiksurve/devops-project
 
 ## Objective
 
@@ -13,19 +13,23 @@ Develop a small web application and demonstrate an end-to-end development workfl
 
 ## Application overview
 
-The application is a responsive task-management dashboard with a browser-based interface and a Node.js HTTP API. Users can add tasks, search, filter and sort the list, mark tasks complete, and delete them. The API validates task titles, records task creation timestamps, and provides a health endpoint. Task data is held in memory and is reset when the process restarts; persistent storage is outside this mini-project's scope.
+The application is a responsive task-management dashboard with registration, sign-in, profile editing, and an Express API. Users can add tasks with a priority and environment/topic tags, move them through Todo, In Progress, Review, and Done, search, filter, sort, and export the task list. PostgreSQL stores account profiles, sessions, and user-owned task metadata so the data persists across application restarts.
 
 ## Architecture and tools
 
 | Area | Implementation |
 | --- | --- |
 | Frontend | HTML, CSS, and browser JavaScript in `public/` |
-| Backend | Node.js HTTP server and JSON API in `src/server.js` |
+| Backend | Express JSON API in `src/server.js` |
+| Authentication | Password sign-in and Google OAuth (verified email, PKCE, session-bound state) with HTTP-only PostgreSQL-backed sessions |
+| Database | PostgreSQL users, sessions, and user-owned tasks in `src/db.js` |
 | Version control | Git repository; publish to GitHub and use the `main` branch |
 | Automated tests | Node.js built-in test runner with HTTP integration tests |
 | Continuous integration | GitHub Actions in the repository-root `.github/workflows/ci.yml` |
 | Containerization | `Dockerfile`, based on Node.js 22 Alpine |
-| Local deployment | `compose.yaml`, available at `http://localhost:3000` |
+| Local deployment | PostgreSQL + application in `compose.yaml`, available at `http://localhost:3000` |
+
+Supported priority values are Low, Medium, High, and Blocker. Supported tags are `prod`, `staging`, `ci/cd`, `infra`, `docker`, and `db`. JSON and Markdown exports include the current filtered task view.
 
 ## Pipeline
 
@@ -35,18 +39,18 @@ On a push or pull request targeting `main`, GitHub Actions checks out the code, 
 
 Run these commands from the project directory:
 
-```powershell
-npm ci
-npm test
+```sh
 docker compose up --build -d
 docker compose ps
 ```
 
-Open `http://localhost:3000`, add a task, mark it complete, and delete it. Verify `http://localhost:3000/api/health` returns `{"status":"ok"}`. Clean up with:
+Create an account at `http://localhost:3000`, add a task, mark it complete, and delete it. Create a second account and verify it cannot see the first account's tasks. Verify `http://localhost:3000/api/health` returns `{"status":"ok"}`. For automated tests run `npm ci` and `npm test` while the Compose database is running. The test suite uses the separate `taskflow_test` database. Clean up the application and database container while retaining the local database volume with:
 
-```powershell
+```sh
 docker compose down
 ```
+
+Local Compose credentials are for development only. Configure unique database and session secrets, HTTPS, and production environment settings before deploying publicly.
 
 ## Screenshot checklist
 
@@ -60,4 +64,4 @@ Capture and insert genuine screenshots before submission. Suggested evidence:
 
 ## Conclusion
 
-The project demonstrates source control, repeatable automated testing, container image creation, and container deployment. The GitHub Actions workflow provides continuous integration and validates the containerized app; Docker Compose provides a repeatable local deployment for evaluation.
+The project demonstrates source control, repeatable automated testing, account authentication, per-user data isolation, persistent PostgreSQL storage, container image creation, and container deployment. The GitHub Actions workflow validates the API against a PostgreSQL service and smoke-tests the container; Docker Compose provides a repeatable local deployment for evaluation.

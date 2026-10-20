@@ -1,6 +1,7 @@
 .git
 .github
 node_modules
+.env
 npm-debug.log*
 PROJECT_REPORT.md
 README.md
