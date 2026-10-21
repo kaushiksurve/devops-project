@@ -89,12 +89,20 @@ async function findOrCreateGoogleUser(pool, profile) {
 
 function assertProductionConfig() {
   if (process.env.NODE_ENV !== 'production') return;
+  let databasePassword = process.env.PGPASSWORD;
+  if (!databasePassword && process.env.DATABASE_URL) {
+    try {
+      databasePassword = new URL(process.env.DATABASE_URL).password;
+    } catch {
+      throw new Error('DATABASE_URL must be a valid PostgreSQL connection URL.');
+    }
+  }
   if (!process.env.SESSION_SECRET
     || process.env.SESSION_SECRET.length < 32
     || process.env.SESSION_SECRET === LOCAL_SESSION_SECRET
-    || !process.env.PGPASSWORD
-    || process.env.PGPASSWORD.length < 32
-    || process.env.PGPASSWORD === LOCAL_DATABASE_PASSWORD) {
+    || !databasePassword
+    || databasePassword.length < 32
+    || databasePassword === LOCAL_DATABASE_PASSWORD) {
     throw new Error('Production requires unique SESSION_SECRET and PostgreSQL credentials, each at least 32 characters; local development secrets are not allowed.');
   }
 }

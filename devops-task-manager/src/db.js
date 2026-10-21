@@ -2,14 +2,18 @@ const { Pool } = require('pg');
 
 function createPool() {
   return new Pool({
-    host: process.env.PGHOST || 'localhost',
-    port: Number(process.env.PGPORT) || 5432,
-    database: process.env.NODE_ENV === 'test'
-      ? process.env.TEST_PGDATABASE || 'taskflow_test'
-      : process.env.PGDATABASE || 'taskflow',
-    user: process.env.PGUSER || 'taskflow_app',
-    password: process.env.PGPASSWORD || 'taskflow-app-local-only',
-    max: 10,
+    ...(process.env.DATABASE_URL
+      ? { connectionString: process.env.DATABASE_URL }
+      : {
+          host: process.env.PGHOST || 'localhost',
+          port: Number(process.env.PGPORT) || 5432,
+          database: process.env.NODE_ENV === 'test'
+            ? process.env.TEST_PGDATABASE || 'taskflow_test'
+            : process.env.PGDATABASE || 'taskflow',
+          user: process.env.PGUSER || 'taskflow_app',
+          password: process.env.PGPASSWORD || 'taskflow-app-local-only'
+        }),
+    max: process.env.NETLIFY ? 3 : 10,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 30000
   });

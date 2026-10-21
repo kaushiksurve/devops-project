@@ -448,6 +448,7 @@ test('refuses known development credentials in production mode', () => {
   const oldNodeEnv = process.env.NODE_ENV;
   const oldSessionSecret = process.env.SESSION_SECRET;
   const oldDatabasePassword = process.env.PGPASSWORD;
+  const oldDatabaseUrl = process.env.DATABASE_URL;
   process.env.NODE_ENV = 'production';
   process.env.SESSION_SECRET = 'local-only-replace-this-session-secret-before-deployment-32chars';
   process.env.PGPASSWORD = 'taskflow-app-local-only';
@@ -463,5 +464,30 @@ test('refuses known development credentials in production mode', () => {
     else process.env.SESSION_SECRET = oldSessionSecret;
     if (oldDatabasePassword === undefined) delete process.env.PGPASSWORD;
     else process.env.PGPASSWORD = oldDatabasePassword;
+    if (oldDatabaseUrl === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = oldDatabaseUrl;
+  }
+});
+
+test('accepts a strong PostgreSQL connection URL in production mode', () => {
+  const oldNodeEnv = process.env.NODE_ENV;
+  const oldSessionSecret = process.env.SESSION_SECRET;
+  const oldDatabasePassword = process.env.PGPASSWORD;
+  const oldDatabaseUrl = process.env.DATABASE_URL;
+  process.env.NODE_ENV = 'production';
+  process.env.SESSION_SECRET = 'strong-session-secret-for-production-0123456789';
+  delete process.env.PGPASSWORD;
+  process.env.DATABASE_URL = `postgresql://taskflow:${'n'.repeat(40)}@db.example.com/taskflow?sslmode=require`;
+  try {
+    assert.doesNotThrow(() => createApp(pool));
+  } finally {
+    if (oldNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = oldNodeEnv;
+    if (oldSessionSecret === undefined) delete process.env.SESSION_SECRET;
+    else process.env.SESSION_SECRET = oldSessionSecret;
+    if (oldDatabasePassword === undefined) delete process.env.PGPASSWORD;
+    else process.env.PGPASSWORD = oldDatabasePassword;
+    if (oldDatabaseUrl === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = oldDatabaseUrl;
   }
 });

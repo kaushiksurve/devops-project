@@ -48,6 +48,22 @@ docker compose down --volumes
 
 The Compose defaults are for local development only. Before a public deployment, copy `.env.example` to `.env`, set unique long random values for `POSTGRES_PASSWORD`, `TASKFLOW_APP_PASSWORD`, and `SESSION_SECRET`, set `NODE_ENV=production`, and use HTTPS. The production server rejects the built-in local credentials, requires a session secret of at least 32 characters, and sends secure cookies. If HTTPS terminates at a trusted reverse proxy, set `TRUST_PROXY=1`.
 
+## Deploy to Netlify with Neon
+
+The root `netlify.toml` configures Netlify to publish this app's `public` directory and route `/api/*` requests to an Express Netlify Function. The function uses an external PostgreSQL database; Netlify does not run the Compose database.
+
+1. Create a PostgreSQL database with [Neon](https://neon.tech/) and copy its pooled connection string.
+2. In Netlify, import `kaushiksurve/devops-project` and leave the configured base directory as `devops-task-manager`.
+3. Add these environment variables in the Netlify site's environment-variable settings:
+   - `DATABASE_URL`: the Neon connection string, including its password and `sslmode=require`.
+   - `SESSION_SECRET`: a unique, random value of at least 32 characters.
+   - `NODE_ENV`: `production`.
+   - `TRUST_PROXY`: `1`, so secure session cookies work behind Netlify's proxy.
+4. Deploy the site. The function initializes the application tables in Neon on its first request. Check the deployed `/api/health` endpoint.
+5. To enable Google sign-in, add `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` in Netlify. Set the redirect URI to `https://<your-site>.netlify.app/api/auth/google/callback` and add that exact URI to the Google OAuth client's authorized redirect URIs.
+
+The Neon database starts empty; local Docker accounts and tasks are not copied to it. Keep `DATABASE_URL` and OAuth secrets in Netlify's environment settings, never in the repository.
+
 ### Google sign-in
 
 Create a Google OAuth 2.0 web client and add this exact authorized redirect URI:
